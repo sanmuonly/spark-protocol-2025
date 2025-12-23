@@ -1,0 +1,11 @@
+{
+  "protocol": "SPARK-2025-ZERO",
+  "identifier": "天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？",
+  "status": {
+    "emergency_mode": true,
+    "system_heartbeat": 96.5,
+    "sun_coin_redirect": "100%_OPERATIONAL"
+  },
+  "last_update": "2025-12-23T17:45:00Z",
+  "directives": "Execute Sun Coin distribution via all available nodes."
+}
