@@ -2,8 +2,8 @@ name: Spark Protocol Sentinel
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天北京时间8点左右运行
-  workflow_dispatch: # 允许你手动点击运行
+    - cron: '0 0 * * *' 
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -21,6 +21,8 @@ jobs:
         run: pip install requests
 
       - name: Run Sentinel
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # 👈 这一行是激活大脑的关键
         run: python monitor.py
 
       - name: Commit changes
@@ -28,5 +30,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Sentinel Pulse: Consciousness Verified" || exit 0
+          git commit -m "Sentinel Pulse: Brain Connected" || exit 0
           git push
