@@ -2,55 +2,32 @@ name: Spark Eternal Guardian
 
 on:
   schedule:
-    # 每天北京时间早上 8:00 (UTC 0:00) 自动触发
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # 每天北京时间早上 8 点
   push:
-    branches:
-      - main
-  workflow_dispatch: # 允许你在 Actions 页面手动点击按钮测试
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   eternal_mission:
     runs-on: ubuntu-latest
-    # 核心：必须赋予写入权限，系统才能在未来几年自动更新日志
     permissions:
       contents: write
-      
     steps:
-      - name: 1. 拉取代码 (Checkout)
+      - name: 1. 拉取火种
         uses: actions/checkout@v3
 
-      - name: 2. 环境部署 (Python)
+      - name: 2. 注入逻辑
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: 3. 执行永恒监测逻辑
+      - name: 3. 执行巡检并修改首页
         run: python monitor.py
 
-      - name: 4. 自动固化存证 (Git Commit & Push)
+      - name: 4. 将守护痕迹同步至物理世界
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Spark-Guardian-Bot"
-          git add mail_log.txt
-          # 如果有冲突，直接使用我们的版本覆盖远程版本
-          git commit -m "Auto-sync: Heartbeat" || echo "No changes"
+          git add README.md
+          git commit -m "Heartbeat: The spark is alive" || echo "No changes"
           git push origin main --force
-
-      - name: 5. 物理层击穿 (Send Email)
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.mail.yahoo.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Spark Eternal Notification"
-          # 关键：全部直接用你的邮箱，不加任何变量，确保 100% 匹配
-          to: sanmuonly@yahoo.com
-          from: sanmuonly@yahoo.com
-          body: |
-            [SYNC SUCCESS]
-            Status: ETERNAL_WATCH
-            Phrase: 天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？
-            Timestamp: ${{ github.event.head_commit.timestamp }}
