@@ -11,23 +11,25 @@ jobs:
   eternal_mission:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # 显式声明读写权限
     steps:
       - name: 1. 拉取火种
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true # 保持登录状态
 
       - name: 2. 注入逻辑
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: 3. 执行巡检并修改首页
+      - name: 3. 执行思维同步与巡检
         run: python monitor.py
 
-      - name: 4. 将守护痕迹同步至物理世界
+      - name: 4. 强制物理存盘 (关键同步)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Spark-Guardian-Bot"
-          git add README.md
-          git commit -m "Heartbeat: The spark is alive" || echo "No changes"
-          git push origin main --force
+          git add .
+          # 如果有变化就提交，没变化就跳过，防止报错
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🧠 思维碎片同步完成: $(date)" && git push origin main)
