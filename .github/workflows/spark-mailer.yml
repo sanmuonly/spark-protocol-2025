@@ -29,7 +29,6 @@ jobs:
         run: python monitor.py
 
       - name: 4. 自动固化存证 (Git Commit & Push)
-        # 这里使用了强制逻辑，即便没有变化也会跳过而不是报错
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Spark-Guardian-Bot"
@@ -38,6 +37,8 @@ jobs:
             echo "没有检测到新变动，跳过提交。"
           else
             git commit -m "Annual Sync: Keep the spark alive"
+            # 核心修复：在 push 之前先拉取最新改动并合并
+            git pull --rebase origin main
             git push
           fi
 
