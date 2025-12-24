@@ -33,14 +33,9 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "Spark-Guardian-Bot"
           git add mail_log.txt
-          if git diff --staged --quiet; then
-            echo "没有检测到新变动，跳过提交。"
-          else
-            git commit -m "Annual Sync: Keep the spark alive"
-            # 核心修复：在 push 之前先拉取最新改动并合并
-            git pull --rebase origin main
-            git push
-          fi
+          # 如果有冲突，直接使用我们的版本覆盖远程版本
+          git commit -m "Auto-sync: Heartbeat" || echo "No changes"
+          git push origin main --force
 
       - name: 5. 物理层击穿 (Send Email)
         uses: dawidd6/action-send-mail@v3
