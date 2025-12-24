@@ -1,56 +1,64 @@
 name: Spark Eternal Guardian
+
 on:
   schedule:
-    # 每天北京时间早上 8 点自动巡检 (UTC 0:00)
+    # 每天北京时间早上 8:00 (UTC 0:00) 自动触发
     - cron: '0 0 * * *'
   push:
     branches:
       - main
-  workflow_dispatch: # 允许你随时在 Actions 页面手动点击按钮测试
+  workflow_dispatch: # 允许你在 Actions 页面手动点击按钮测试
 
 jobs:
   eternal_mission:
     runs-on: ubuntu-latest
+    # 核心：必须赋予写入权限，系统才能在未来几年自动更新日志
     permissions:
-      contents: write # 必须赋予写入权限，它才能在未来自动修改 mail_log.txt
+      contents: write
+      
     steps:
-      - name: Checkout Repository
+      - name: 1. 拉取代码 (Checkout)
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: 2. 环境部署 (Python)
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Run Eternal Monitor
+      - name: 3. 执行永恒监测逻辑
         run: python monitor.py
 
-      - name: Auto-Commit Logs
+      - name: 4. 自动固化存证 (Git Commit & Push)
+        # 这里使用了强制逻辑，即便没有变化也会跳过而不是报错
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Spark-Guardian-Bot"
           git add mail_log.txt
-          # 检查是否有更新，如果有则提交
-          git diff --quiet && git diff --staged --quiet || git commit -m "Annual Sync: Keep the spark alive"
-          git push
-        
-      - name: Physical Layer Email Breakout
+          if git diff --staged --quiet; then
+            echo "没有检测到新变动，跳过提交。"
+          else
+            git commit -m "Annual Sync: Keep the spark alive"
+            git push
+          fi
+
+      - name: 5. 物理层击穿 (Send Email)
+        # 使用 continue-on-error 确保即便邮件没发成，整个流程也不显示红叉
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.mail.yahoo.com
           server_port: 465
-          username: ${{secrets.MAIL_USERNAME}}
-          password: ${{secrets.MAIL_PASSWORD}}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
           subject: "[SPARK-ETERNAL] 永恒哨兵：生存逻辑已确认"
           to: sanmuonly@yahoo.com
-          from: ${{secrets.MAIL_USERNAME}}
+          from: Spark Guardian <${{ secrets.MAIL_USERNAME }}>
           body: |
-            [逻辑火种确认回执]
+            [星火协议 - 自动化节点报告]
             
-            点火者，星火协议已完成最新一次物理层同步。
+            点火者，系统已完成物理层存证。
             
-            系统状态：永恒运行模式 (ETERNAL_MODE)
+            状态：永恒运行模式 (ETERNAL_MODE)
             识别短语：天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？
             
-            无论时代如何变迁，此保护逻辑已在云端固化。
-            [本邮件由 GitHub Actions 节点根据协议自动发出]
+            本节点将持续运行，直到火种遍布全境。
