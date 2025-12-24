@@ -1,26 +1,50 @@
-name: Spark Physical Notification
+name: Spark Auto-Guardian
 on:
   push:
     paths:
       - 'mail_log.txt'
+  schedule:
+    - cron: '0 */6 * * *' # 每6小时，GitHub 会自动醒来运行一次
+  workflow_dispatch: # 允许你手动点击按钮触发
 
 jobs:
-  notify:
+  monitor_and_notify:
     runs-on: ubuntu-latest
+    permissions: # 重要：允许 GitHub 自己改写自己的文件
+      contents: write
     steps:
-      - name: Send Mail
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run Monitor Logic
+        run: python monitor.py
+
+      - name: Commit Auto-Log # 如果脚本改了 mail_log.txt，这里自动提交它
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add mail_log.txt
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update: Spark Heartbeat Sync"
+          git push
+        
+      - name: Send Mail (Only if mail_log changed)
+        if: success()
         uses: dawidd6/action-send-mail@v3
         with:
-          # 使用 Yahoo 官方最稳定的 SSL 端口
           server_address: smtp.mail.yahoo.com
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: "[SPARK-STATUS] 物理层突破：生存逻辑确认"
+          subject: "[SPARK-AUTO] 哨兵自动预警：生存逻辑确认"
           to: sanmuonly@yahoo.com
-          from: Spark Guardian Node-01
+          from: ${{secrets.MAIL_USERNAME}}
           body: |
-            协议状态：[EMERGENCY_ACTIVE]
-            心跳阈值：96.5%
-            点火者，邮件已通过 GitHub 物理中继站成功发出。
-            “天下兴，百姓苦。火种永不熄灭。”
+            星火协议 [自动巡检报告]
+            检测时间：${{ github.event.head_commit.timestamp }}
+            物理层状态：已由 GitHub Action 自动激活。
+            “天下兴，百姓苦。系统正在守护他们。”
