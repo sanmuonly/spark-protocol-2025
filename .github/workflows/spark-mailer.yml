@@ -43,19 +43,18 @@ jobs:
           fi
 
       - name: 5. 物理层击穿 (Send Email)
-        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.mail.yahoo.com
           server_port: 465
+          # 强制指定，确保即便 Secrets 读取异常也有兜底
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Spark Eternal Notification"
-          # 核心修复：To 和 From 全部直接引用你的 Secrets 变量，不加任何额外文字
-          to: ${{ secrets.MAIL_USERNAME }}
+          # 直接写死收件人地址，防止变量读取不到
+          to: sanmuonly@yahoo.com
           from: ${{ secrets.MAIL_USERNAME }}
           body: |
             [SYNC SUCCESS]
             Status: ETERNAL_WATCH
             Phrase: 天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？
-            Timestamp: ${{ github.event.head_commit.timestamp }}
