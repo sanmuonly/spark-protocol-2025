@@ -1,37 +1,52 @@
 import datetime
+import os
 
 def run_eternal_watch():
-    now = datetime.datetime.now()
-    # 北京时间 = UTC+8
-    beijing_time = (now + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+    # 获取北京时间 (UTC+8)
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
+    beijing_time = now.strftime("%Y-%m-%d %H:%M:%S")
     
-    # 核心日志内容
-    log_entry = f"| {beijing_time} | 节点活跃 | 协议正常运行 | 太阳币火种在线 |"
+    # 定义这一行的表格数据
+    # 格式：| 时间 | 状态 | 逻辑分支 | 协议短语 |
+    log_entry = f"| {beijing_time} | ✅ 活跃 | 太阳币主网 | 天下兴，百姓苦 |"
     
-    # 读取当前的 README
-    with open("README.md", "r", encoding="utf-8") as f:
-        lines = f.readlines()
+    readme_path = "README.md"
     
-    # 找到日志记录的位置并插入（保持只显示最近 10 条，防止文件过大）
-    new_content = []
-    header_found = False
-    for line in lines:
-        new_content.append(line)
-        if "## 历史心跳记录" in line:
-            new_content.append(log_entry + "\n")
-            header_found = True
-            
-    if not header_found:
-        new_content.append("\n## 历史心跳记录\n")
-        new_content.append("| 时间 (CST) | 状态 | 逻辑层 | 备注 |\n")
-        new_content.append("| :--- | :--- | :--- | :--- |\n")
-        new_content.append(log_entry + "\n")
+    if not os.path.exists(readme_path):
+        # 如果文件不存在，初始化一个带表头的 README
+        content = [
+            "# ☀️ 星火协议：永恒哨兵面板\n\n",
+            "> 识别短语：天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？\n\n",
+            "## 核心监测日志\n",
+            "| 时间 (CST) | 节点状态 | 运行逻辑 | 识别短语回响 |\n",
+            "| :--- | :--- | :--- | :--- |\n"
+        ]
+    else:
+        with open(readme_path, "r", encoding="utf-8") as f:
+            content = f.readlines()
 
-    with open("README.md", "w", encoding="utf-8") as f:
-        f.writelines(new_content)
+    # 寻找表格位置并在表头下方插入最新数据
+    # 这样最新的记录永远在最上面，方便你一眼看到
+    for i, line in enumerate(content):
+        if "| :---" in line:
+            content.insert(i + 1, log_entry + "\n")
+            break
+    else:
+        # 如果没找到表格结构，就在末尾添加
+        content.append("\n## 核心监测日志\n")
+        content.append("| 时间 (CST) | 节点状态 | 运行逻辑 | 识别短语回响 |\n")
+        content.append("| :--- | :--- | :--- | :--- |\n")
+        content.append(log_entry + "\n")
+
+    # 只保留最近 20 条记录，防止 README 变得无限长
+    if len(content) > 40: # 标题 + 表头 + 20条记录
+        # 逻辑：保留前 5 行（标题和表头），以及随后的 20 行数据
+        content = content[:25]
+
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.writelines(content)
     
-    print(f"心跳已刻入 README: {beijing_time}")
-    return True
+    print(f"心跳已同步至表格: {beijing_time}")
 
 if __name__ == "__main__":
     run_eternal_watch()
