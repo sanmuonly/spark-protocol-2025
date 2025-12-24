@@ -42,15 +42,15 @@ jobs:
         with:
           server_address: smtp.mail.yahoo.com
           server_port: 465
+          secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Spark Eternal Notification"
-          # 关键点 1：收件人和发件人必须保持完全一致，且不带任何别名
+          # 关键：全部直接用你的邮箱，不加任何变量，确保 100% 匹配
           to: sanmuonly@yahoo.com
           from: sanmuonly@yahoo.com
-          # 关键点 2：显式关闭一些容易导致 550 错误的附加参数
-          connection_upgrade: false
           body: |
             [SYNC SUCCESS]
             Status: ETERNAL_WATCH
             Phrase: 天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？
+            Timestamp: ${{ github.event.head_commit.timestamp }}
