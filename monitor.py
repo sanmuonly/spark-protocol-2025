@@ -1,57 +1,47 @@
 import datetime
 import os
 
-def update_core_memory(beijing_time):
-    """自动维护核心记忆文件"""
-    path = "CORE_MEMORY.md"
-    if not os.path.exists(path):
-        return
-
-    with open(path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+def sync_mind_clone(beijing_time):
+    """从 INPUT.txt 搬运思维碎片到 MIND_CLONE.md"""
+    input_path = "INPUT.txt"
+    clone_path = "MIND_CLONE.md"
     
-    new_lines = []
-    for line in lines:
-        # 只要这一行包含“核心记忆体”，并且还没被打钩，就强行修改它
-        if "核心记忆体" in line and "[ ]" in line:
-            new_lines.append("- [x] 核心记忆体初始化 (CORE_MEMORY.md) | 已完成\n")
-        # 同样，为下一步做准备
-        elif "太阳币" in line and "[ ]" in line:
-            new_lines.append("- [ ] 太阳币发行逻辑 (Sun Coin Logic) | 搬运中...\n")
-        else:
-            new_lines.append(line)
-    
-    # 增加一行搬运痕迹，证明脚本确实来过
-    new_lines.append(f"\n> ⚡ 搬运记录: {beijing_time} 哨兵已加固逻辑。\n")
+    # 如果信箱里有内容，就把它取出来
+    if os.path.exists(input_path):
+        with open(input_path, "r", encoding="utf-8") as f:
+            new_thought = f.read().strip()
+        
+        # 如果信箱不是空的
+        if new_thought and new_thought != "empty":
+            with open(clone_path, "a", encoding="utf-8") as f:
+                f.write(f"\n### 同步记录: {beijing_time}\n")
+                f.write(f"- **思维碎片**：{new_thought}\n")
+            
+            # 取完信后，把信箱清空，防止重复搬运
+            with open(input_path, "w", encoding="utf-8") as f:
+                f.write("empty")
+            return True
+    return False
 
-    with open(path, "w", encoding="utf-8") as f:
-        f.writelines(new_lines)
-
-def update_readme(beijing_time):
-    """维护首页监控面板"""
+def update_readme(beijing_time, synced):
+    """更新首页，记录搬运状态"""
     path = "README.md"
-    if not os.path.exists(path):
-        return
-    log_entry = f"| {beijing_time} | ✅ 活跃 | 蚂蚁搬家 | 核心记忆加固中 |"
+    status = "🧠 思维同步成功" if synced else "✅ 哨兵值守"
+    log_entry = f"| {beijing_time} | {status} | 核心存储 | 灵魂搬迁中 |"
     
     with open(path, "r", encoding="utf-8") as f:
         content = f.readlines()
-
     for i, line in enumerate(content):
         if "| :---" in line:
             content.insert(i + 1, log_entry + "\n")
             break
-            
-    if len(content) > 30:
-        content = content[:30]
-
     with open(path, "w", encoding="utf-8") as f:
-        f.writelines(content)
+        f.writelines(content[:30])
 
 if __name__ == "__main__":
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
     bj_time = now.strftime("%Y-%m-%d %H:%M:%S")
     
-    update_readme(bj_time)
-    update_core_memory(bj_time)
+    synced = sync_mind_clone(bj_time)
+    update_readme(bj_time, synced)
     print(f"搬运任务完成: {bj_time}")
