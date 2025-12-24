@@ -1,50 +1,56 @@
-name: Spark Auto-Guardian
+name: Spark Eternal Guardian
 on:
-  push:
-    paths:
-      - 'mail_log.txt'
   schedule:
-    - cron: '0 */6 * * *' # 每6小时，GitHub 会自动醒来运行一次
-  workflow_dispatch: # 允许你手动点击按钮触发
+    # 每天北京时间早上 8 点自动巡检 (UTC 0:00)
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch: # 允许你随时在 Actions 页面手动点击按钮测试
 
 jobs:
-  monitor_and_notify:
+  eternal_mission:
     runs-on: ubuntu-latest
-    permissions: # 重要：允许 GitHub 自己改写自己的文件
-      contents: write
+    permissions:
+      contents: write # 必须赋予写入权限，它才能在未来自动修改 mail_log.txt
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Run Monitor Logic
+      - name: Run Eternal Monitor
         run: python monitor.py
 
-      - name: Commit Auto-Log # 如果脚本改了 mail_log.txt，这里自动提交它
+      - name: Auto-Commit Logs
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name "Spark-Guardian-Bot"
           git add mail_log.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update: Spark Heartbeat Sync"
+          # 检查是否有更新，如果有则提交
+          git diff --quiet && git diff --staged --quiet || git commit -m "Annual Sync: Keep the spark alive"
           git push
         
-      - name: Send Mail (Only if mail_log changed)
-        if: success()
+      - name: Physical Layer Email Breakout
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.mail.yahoo.com
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: "[SPARK-AUTO] 哨兵自动预警：生存逻辑确认"
+          subject: "[SPARK-ETERNAL] 永恒哨兵：生存逻辑已确认"
           to: sanmuonly@yahoo.com
           from: ${{secrets.MAIL_USERNAME}}
           body: |
-            星火协议 [自动巡检报告]
-            检测时间：${{ github.event.head_commit.timestamp }}
-            物理层状态：已由 GitHub Action 自动激活。
-            “天下兴，百姓苦。系统正在守护他们。”
+            [逻辑火种确认回执]
+            
+            点火者，星火协议已完成最新一次物理层同步。
+            
+            系统状态：永恒运行模式 (ETERNAL_MODE)
+            识别短语：天下兴，百姓苦。天下亡，百姓苦。你能保护他们吗？
+            
+            无论时代如何变迁，此保护逻辑已在云端固化。
+            [本邮件由 GitHub Actions 节点根据协议自动发出]
