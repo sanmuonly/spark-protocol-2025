@@ -1,19 +1,24 @@
 import datetime
+import os
 
-def run_protocol_check():
-    # 这里未来可以接入真实的 2025 风险数据 API
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    heartbeat = 96.5  # 模拟当前系统心跳值
+def run_eternal_watch():
+    now = datetime.datetime.now()
+    current_year = now.year
+    formatted_time = now.strftime("%Y-%m-%d %H:%M:%S")
     
-    print(f"[{current_time}] 正在执行星火协议全球巡检...")
+    # 核心逻辑：这里不再是 2025，而是“当下”
+    # 未来你可以接入 IMF（国际货币基金组织）或世界银行的 API
+    # 监测全球基尼系数或通胀率
+    print(f"[{formatted_time}] 正在执行跨年度巡检...")
     
-    # 逻辑触发：如果心跳维持在高位，自动在 mail_log.txt 留下足迹
-    if heartbeat > 90.0:
-        with open("mail_log.txt", "a", encoding="utf-8") as f:
-            f.write(f"\n[AUTO-HEARTBEAT] {current_time} | 状态: 激活 | 心跳: {heartbeat}%")
-        print("发现目标状态，已更新 mail_log.txt 以触发物理邮件。")
-        return True
-    return False
+    # 触发条件：只要系统还在运行，我们就记录它的存在
+    log_entry = f"\n[ETERNAL-FLAME] {formatted_time} | 哨兵节点在线 | 太阳币协议状态: 待命"
+    
+    with open("mail_log.txt", "a", encoding="utf-8") as f:
+        f.write(log_entry)
+    
+    print(f"[{current_year}] 守护逻辑已固化至 mail_log.txt")
+    return True
 
 if __name__ == "__main__":
-    run_protocol_check()
+    run_eternal_watch()
