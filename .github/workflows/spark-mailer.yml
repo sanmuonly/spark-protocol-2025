@@ -47,13 +47,14 @@ jobs:
         with:
           server_address: smtp.mail.yahoo.com
           server_port: 465
-          # 强制指定，确保即便 Secrets 读取异常也有兜底
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Spark Eternal Notification"
-          # 直接写死收件人地址，防止变量读取不到
+          # 关键点 1：收件人和发件人必须保持完全一致，且不带任何别名
           to: sanmuonly@yahoo.com
-          from: ${{ secrets.MAIL_USERNAME }}
+          from: sanmuonly@yahoo.com
+          # 关键点 2：显式关闭一些容易导致 550 错误的附加参数
+          connection_upgrade: false
           body: |
             [SYNC SUCCESS]
             Status: ETERNAL_WATCH
