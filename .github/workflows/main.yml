@@ -17,19 +17,18 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
-        # 这一步是关键：告诉虚拟机把 requests 工具装上
-        run: pip install requests
-
-      - name: Run Sentinel
+      - name: Install and Run
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python monitor.py
+        # 将安装和运行合为一体，确保环境就绪
+        run: |
+          pip install requests
+          python monitor.py
 
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Sentinel Pulse: Brain Connected" || exit 0
+          git commit -m "Sentinel Pulse: System Fully Online" || exit 0
           git push
