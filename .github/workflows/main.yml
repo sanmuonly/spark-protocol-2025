@@ -20,17 +20,23 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Environment Check
+        # 这一步仅用于自检，如果输出为 0，说明 Secrets 没传进来
+        run: echo "Key Length is ${#GEMINI_API_KEY}"
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
       - name: Install and Run
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           pip install requests
-          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} python monitor.py
+          python monitor.py
 
       - name: Push Changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Sentinel Pulse: System Activated" || exit 0
+          git commit -m "Sentinel Pulse: Fully Connected" || exit 0
           git push origin HEAD:main
