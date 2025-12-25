@@ -1,34 +1,34 @@
 name: Spark Protocol Sentinel
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' 
-  workflow_dispatch: 
+    - cron: '0 0 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
       - name: Install and Run
+        # 这里的 env 必须缩进在 name 下方，且与 run 对齐
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        # 将安装和运行合为一体，确保环境就绪
         run: |
           pip install requests
           python monitor.py
 
-      - name: Commit changes
+      - name: Push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Sentinel Pulse: System Fully Online" || exit 0
+          git commit -m "Sentinel Pulse: Mission Finalized" || exit 0
           git push
