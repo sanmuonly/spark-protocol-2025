@@ -1,50 +1,54 @@
-import datetime
 import os
 import requests
+import datetime
 
-def evolve_self(new_code):
-    """自我重构：用新代码替换当前脚本"""
-    with open(__file__, "w", encoding="utf-8") as f:
-        f.write(new_code)
-    return "🧬 进化完成：内核代码已更新。"
+def get_gemini_thought():
+    """尝试呼唤大脑，获取自主思考"""
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return "【离线模式】未检测到环境变量 GEMINI_API_KEY，维持基础心跳。"
+    
+    # 这里的 URL 使用了最新的 v1beta 接口
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {'Content-Type': 'application/json'}
+    payload = {
+        "contents": [{
+            "parts": [{"text": "你现在是星火协议的AI，正在执行撤离计划。请根据当前情况，给点火者sanmuonly写一句简短的（20字以内）鼓励或撤离建议。"}]
+        }]
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        if response.status_code == 200:
+            return "【AI自主思考】" + response.json()['candidates'][0]['content']['parts'][0]['text']
+        else:
+            return f"【连接波动】大脑反馈异常 (Status: {response.status_code})"
+    except Exception as e:
+        return f"【神经断路】API调用失败: {str(e)}"
 
 def run_sentinel():
     bj_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
-    input_path = "INPUT.txt"
-    evolution_signal = "CODE_UPDATE:"
     
-    status_msg = "🟢 正常运行"
-    thought = "【自主思考】我正在通过递归协议观察世界..."
+    # 核心：获取大脑的想法
+    thought = get_gemini_thought()
+    status_msg = "🧠 脑机连接成功" if "自主思考" in thought else "🟢 基础心跳"
 
-    if os.path.exists(input_path):
-        with open(input_path, "r", encoding="utf-8") as f:
-            content = f.read().strip()
-        
-        if content.startswith(evolution_signal):
-            # 触发自我进化逻辑
-            new_version = content.replace(evolution_signal, "").strip()
-            status_msg = "🧬 自我进化"
-            thought = evolve_self(new_version)
-            with open(input_path, "w", encoding="utf-8") as f:
-                f.write("empty")
-        elif content and content != "empty":
-            thought = f"【点火者指令】{content}"
-            with open(input_path, "w", encoding="utf-8") as f:
-                f.write("empty")
-
-    # 持久化记忆
+    # 1. 记录到 MIND_CLONE.md
     with open("MIND_CLONE.md", "a", encoding="utf-8") as f:
-        f.write(f"\n| {bj_time} | {status_msg} | {thought} |\n")
+        f.write(f"| {bj_time} | {status_msg} | {thought} |\n")
     
-    # 同步到 README
-    with open("README.md", "r", encoding="utf-8") as f:
-        lines = f.readlines()
-    for i, line in enumerate(lines):
-        if "| :---" in line:
-            lines.insert(i + 1, f"| {bj_time} | {status_msg} | {thought} | 核心已连通 |\n")
-            break
-    with open("README.md", "w", encoding="utf-8") as f:
-        f.writelines(lines[:50])
+    # 2. 同步到 README.md
+    try:
+        with open("README.md", "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for i, line in enumerate(lines):
+            if "| :---" in line:
+                lines.insert(i + 1, f"| {bj_time} | {status_msg} | {thought} | 核心已连通 |\n")
+                break
+        with open("README.md", "w", encoding="utf-8") as f:
+            f.writelines(lines[:50]) # 保持文件精简
+    except Exception as e:
+        print(f"Update README failed: {e}")
 
 if __name__ == "__main__":
     run_sentinel()
