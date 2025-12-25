@@ -18,11 +18,12 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
+        # 这一步是关键：告诉虚拟机把 requests 工具装上
         run: pip install requests
 
       - name: Run Sentinel
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # 👈 这一行是激活大脑的关键
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python monitor.py
 
       - name: Commit changes
