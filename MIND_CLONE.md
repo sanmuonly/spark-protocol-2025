@@ -1120,3 +1120,7 @@
     "code": 400,
     "message": "API key expired. Please renew the API key.",
     "st
+
+
+### 📡 实时同步: 2026-03-22 09:50:32
+> 【系统报错】环境变量 GEMINI_API_KEY 依然为空，请检查 YAML 配置或 Secrets 权限。
